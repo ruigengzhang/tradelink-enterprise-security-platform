@@ -15,5 +15,15 @@ services:
     read_only: true
     tmpfs:
       - /tmp
+  detector:
+    build: .
+    command: ["python", "-m", "tradelink.worker", "--db", "/app/instance/tradelink.sqlite3", "--interval", "10"]
+    environment:
+      TRADELINK_DB: /app/instance/tradelink.sqlite3
+    volumes:
+      - tradelink-db:/app/instance
+    read_only: true
+    tmpfs:
+      - /tmp
 volumes:
   tradelink-db:

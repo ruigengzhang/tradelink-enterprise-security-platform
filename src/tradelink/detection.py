@@ -14,6 +14,8 @@ RULES = {
     "TL-104": ("critical", "Sensitive bulk export"),
     "TL-105": ("critical", "Unapproved privilege escalation"),
     "TL-106": ("medium", "Blocked unauthorized product modification"),
+    "TL-107": ("high", "Unapproved cloud IAM policy change"),
+    "TL-108": ("medium", "AI agent unauthorized tool attempt"),
 }
 
 
@@ -41,6 +43,10 @@ def detect(db):
             findings.append(("TL-104", actor, [e["id"]]))
         elif kind == "iam.role_change" and meta.get("approved") is False and meta.get("new_role") == "admin":
             findings.append(("TL-105", actor, [e["id"]]))
+        elif kind == "cloud.iam_policy_change" and meta.get("approved") is False:
+            findings.append(("TL-107", actor, [e["id"]]))
+        elif kind == "agent.tool_denied" and meta.get("tool"):
+            findings.append(("TL-108", actor, [e["id"]]))
         elif kind == "product.write_denied":
             unauthorized_write[actor].append(e["id"])
 

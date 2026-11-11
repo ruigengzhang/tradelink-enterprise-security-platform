@@ -1,0 +1,38 @@
+name: Security Lab CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-scan:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install package and test tooling
+        run: python -m pip install -e ".[dev]"
+      - name: Test
+        run: pytest -q
+      - name: Syntax compile
+        run: python -m compileall -q src
+      - name: Run isolated lab scenarios
+        run: |
+          tradelink-enterprise --db /tmp/tradelink-ci-${{ matrix.python-version }}.sqlite3 demo
+          tradelink-enterprise --db /tmp/tradelink-ci-${{ matrix.python-version }}.sqlite3 detect
+      - name: Dependency audit
+        run: |
+          python -m pip install pip-audit
+          pip-audit
+      - name: Static security checks
+        run: |
+          python -m pip install bandit
+          bandit -q -r src -s B104

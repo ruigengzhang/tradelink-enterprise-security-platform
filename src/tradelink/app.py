@@ -187,6 +187,23 @@ def create_app(test_config=None):
             rows = conn.execute("SELECT * FROM alerts ORDER BY id DESC LIMIT 200").fetchall()
         return jsonify(alerts=[{**dict(r), "evidence": json.loads(r["evidence_json"])} for r in rows])
 
+    @app.get("/api/security/metrics")
+    @require_auth("analyst", "admin")
+    def metrics():
+        with db() as conn:
+            event_total = conn.execute("SELECT COUNT(*) FROM events").fetchone()[0]
+            alert_total = conn.execute("SELECT COUNT(*) FROM alerts").fetchone()[0]
+            case_total = conn.execute("SELECT COUNT(*) FROM cases").fetchone()[0]
+            severity = {r["severity"]: r["n"] for r in conn.execute(
+                "SELECT severity,COUNT(*) AS n FROM alerts GROUP BY severity")}
+            status = {r["status"]: r["n"] for r in conn.execute(
+                "SELECT status,COUNT(*) AS n FROM cases GROUP BY status")}
+            rules = {r["rule_id"]: r["n"] for r in conn.execute(
+                "SELECT rule_id,COUNT(*) AS n FROM alerts GROUP BY rule_id")}
+        return jsonify(events=event_total, alerts=alert_total, cases=case_total,
+                       by_severity=severity, by_case_status=status, by_rule=rules,
+                       measurement_note="Point-in-time counts; not MTTD/MTTR.")
+
     @app.get("/api/security/cases")
     @require_auth("analyst", "admin")
     def list_cases():

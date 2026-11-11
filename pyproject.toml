@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tradelink-enterprise-security"
+version = "0.1.0"
+description = "Reproducible multi-tenant marketplace security monitoring and incident response lab"
+requires-python = ">=3.10"
+dependencies = ["Flask>=3.0,<4.0"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<10", "ruff>=0.9,<1"]
+
+[project.scripts]
+tradelink-enterprise = "tradelink.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 110

@@ -58,6 +58,7 @@ def main():
     sub.add_parser("detect")
     serve = sub.add_parser("serve")
     serve.add_argument("--port", type=int, default=5000)
+    serve.add_argument("--host", default="127.0.0.1")
     args = parser.parse_args()
     if args.command == "init":
         initialize(args.db)
@@ -75,7 +76,7 @@ def main():
         print(json.dumps(summarize(args.db), indent=2))
     else:
         app = create_app({"DATABASE": str(args.db)})
-        app.run(host="127.0.0.1", port=args.port, debug=False)
+        app.run(host=args.host, port=args.port, debug=False)
 
 
 if __name__ == "__main__":

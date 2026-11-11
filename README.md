@@ -36,7 +36,8 @@ flowchart TD
 | Response | Approved revocation of target user's sessions; no automatic cloud changes |
 | Demonstration | Real Flask test-client requests + clearly labeled synthetic cloud/AI signals |
 | CI | Python 3.11 & 3.13 tests, compilation, dependency audit and static scan |
-| Deployment | Local Python and loopback-only Docker Compose service |
+| Deployment | Local Python and loopback-only Docker Compose API plus periodic detection worker |
+| Evidence export | Audit events to JSONL for external analysis (not a live SIEM connector) |
 | AWS | Optional Terraform S3 security example, **not deployed** |
 
 This release does **not** include live AWS integration, native Elastic/Splunk rules, a production-grade web dashboard, real AI model/tool calls, nor continuously running cloud-scale ingestion.
@@ -88,7 +89,7 @@ curl http://127.0.0.1:5000/health
 docker compose down
 ```
 
-Compose binds only to localhost and stores test data in a named volume. Do not expose demo credentials or this lab to the internet. Python development server is not hardened for external deployment.
+Compose binds only to localhost, stores test data in a named volume and runs a second container that checks detections every 10 seconds. You can also run `python -m tradelink.worker --once` and export evidence using `python -m tradelink.evidence`. Do not expose demo credentials or this lab to the internet. Python development server is not hardened for external deployment.
 
 ## Detection scenarios
 

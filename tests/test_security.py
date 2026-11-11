@@ -107,3 +107,14 @@ def test_approval_is_not_repeatable(lab):
     repeat = client.post(f"/api/security/responses/{request_id}/review",
                          headers=admin, json={"decision": "approve"})
     assert repeat.status_code == 409
+
+
+def test_security_metrics_are_role_restricted(lab):
+    client, _ = lab
+    buyer = login(client, "pacific-buyer")
+    analyst = login(client, "soc-analyst")
+    assert client.get("/api/security/metrics", headers=buyer).status_code == 403
+    result = client.get("/api/security/metrics", headers=analyst)
+    assert result.status_code == 200
+    assert result.json["events"] >= 2
+    assert "by_rule" in result.json
